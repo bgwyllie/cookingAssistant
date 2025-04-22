@@ -1,0 +1,36 @@
+Metadata-Version: 2.4
+Name: ai-cooking-assistant
+Version: 0.1.0
+Summary: Multi-stage AI cooking assistant
+Author-email: Your Name <you@example.com>
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: openai>=0.27.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: fastapi>=0.95.0
+Requires-Dist: uvicorn>=0.22.0
+Requires-Dist: pydantic>=1.10.0
+Requires-Dist: pre-commit>=3.4.0
+
+# AI Cooking Assistant
+
+An AI-powered cooking assistant that provides the user recipes based on the inputted ingredients that they have in their home kitchen or fridge (i.e. , a green pepper, some rice, some cooked chicken, etc.).
+The assistant will provide them with a recipe using these input ingredients, including cooking instructions and tools they will need, estimated cook time, as well as a source reference for the recipe.
+
+## Getting Started
+
+1. Clone this repository
+2. Create and activate the Python Virtual Environment
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies
+
+```
+pip install -e
+pre-commit install
+```
