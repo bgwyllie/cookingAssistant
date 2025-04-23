@@ -1,8 +1,7 @@
 [project]
 name = "ai-cooking-assistant"
 version = "0.1.0"
-description = "Multi-stage AI cooking assistant"
-authors = [{ name = "Your Name", email = "you@example.com" }]
+description = "AI cooking assistant"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
