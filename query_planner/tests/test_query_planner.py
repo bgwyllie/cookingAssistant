@@ -8,30 +8,40 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
 
 from query_planner_app import app
 
-client = TestClient(app)
+mock_content = "mushroom risotto\n creamy mushroom pasta"
 
 
-class DummyChoice:
+class MockChoice:
     def __init__(self, content):
         self.message = {"content": content}
 
 
-def dummy_chatcompletion_create(*args, **kwargs):
-    return {"choices": [DummyChoice("mushroom risotto\n creamy mushroom pasta")]}
+class MockResponse:
+    def __init__(self, content):
+        self.choices = [MockChoice(content)]
+
+
+def mock_create(*args, **kwargs):
+    return {"choices": [{"message": {"content": mock_content}}]}
 
 
 @pytest.fixture(autouse=True)
-def patch_openai(patch):
+def patch_openai(monkeypatch):
     import openai
 
-    patch.setattr(openai.ChatCompletion, "create", dummy_chatcompletion_create)
+    monkeypatch.setattr(openai.ChatCompletion, "create", mock_create)
+
+
+client = TestClient(app)
 
 
 def test_generate_queries():
     payload = {"ingredients": ["mushroom", "cream"]}
     res = client.post("/generate_queries", json=payload)
-    assert res.status_code == 200
+    assert res.status_code == 200, res.text
+
     data = res.json()
     assert "queries" in data
     assert isinstance(data["queries"], list)
-    assert data["queries"][0].startswith("mushroom risotto")
+
+    assert data["queries"] == ["mushroom risotto", "creamy mushroom pasta"]
