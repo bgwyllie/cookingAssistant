@@ -1,0 +1,42 @@
+services:
+  query_planner:
+    build: ./query_planner
+    env_file: .env
+    ports: ["8001:8001"]
+
+  search_service:
+    build: ./search_service
+    env_file: .env
+    ports: ["8002:8002"]
+
+  html_fetcher:
+    build: ./html_fetcher
+    env_file: .env
+    ports: ["8003:8003"]
+
+  extractor_service:
+    build: ./extractor_service
+    env_file: .env
+    ports: ["8004:8004"]
+
+  ranker_service:
+    build: ./ranker_service
+    env_file: .env
+    ports: ["8005:8005"]
+
+  summarizer_service:
+    build: ./summarizer_service
+    env_file: .env
+    ports: ["8006:8006"]
+
+  orchestration_service:
+    build: ./orchestration_service
+    env_file: .env
+    ports: ["8000:8000"]
+    depends_on:
+      - query_planner
+      - search_service
+      - html_fetcher
+      - extractor_service
+      - ranker_service
+      - summarizer_service

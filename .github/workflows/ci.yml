@@ -1,0 +1,25 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:stable-dind
+        options: --priviliged
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Compose
+        run: |
+          docker-compose -f infra/docker-compose.yml up -d --build
+          sleep 10
+      - name: Install Python dependencies for integration test
+        run: pip install pytest requests
+      - name: Run unit tests
+        run: pytest -q
+      - name: Run integration tests
+        run: pytest tests/integration -q
+      - name: Tear down
+        run: docker-compose -f infra/docker-compose.yml down

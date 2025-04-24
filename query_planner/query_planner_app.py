@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 if not openai.api_key:
     raise RuntimeError("missing open ai key")
 
@@ -54,7 +54,7 @@ def generate_queries(req: QueryRequest):
         ),
     }
 
-    response = openai.ChatCompletion.create(
+    response = openai.responses.create(
         model="gpt-4o-mini", messages=[system, user], temperature=0.7, max_tokens=100
     )
 

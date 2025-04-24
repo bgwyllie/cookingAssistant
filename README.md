@@ -19,3 +19,10 @@ source .venv/bin/activate
 pip install -e
 pre-commit install
 ```
+
+How to run all the services locally
+cd infra
+docker-compose up --build
+
+How to run the integration tests
+pytest tests/integration
