@@ -1,4 +1,3 @@
-import json
 import os
 
 import pytest
@@ -8,7 +7,7 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
 
 from query_planner_app import app
 
-mock_content = "mushroom risotto\n creamy mushroom pasta"
+mock_content = "mushroom risotto\ncreamy mushroom pasta"
 
 
 class MockChoice:
@@ -22,7 +21,7 @@ class MockResponse:
 
 
 def mock_create(*args, **kwargs):
-    return {"choices": [{"message": {"content": mock_content}}]}
+    return {"output": [{"content": [{"text": mock_content}]}]}
 
 
 @pytest.fixture(autouse=True)
