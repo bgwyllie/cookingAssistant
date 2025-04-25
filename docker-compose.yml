@@ -32,8 +32,7 @@ services:
   orchestration_service:
     build: ./orchestration_service
     env_file: .env
-    ports:
-      - "8000:8000"
+    ports: ["8000:8000"]
     depends_on:
       - query_planner
       - search_service

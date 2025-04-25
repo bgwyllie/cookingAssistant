@@ -23,7 +23,7 @@ for name, url in [
     if not url:
         raise RuntimeError(f"Missing required environment variable {name}")
 
-app = FastAPI(title="AI Cooking Assistant Orchestration layer")
+app = FastAPI(title="AI Cooking Assistant Orchestration Layer")
 
 
 class FindRequest(BaseModel):
@@ -59,9 +59,7 @@ def find_recipes(req: FindRequest):
         queries = qp_http_response.json().get("queries", [])
         if not queries:
             raise ValueError("Empty queries list")
-    except requests.Timeout:
-        raise HTTPException(status_code=504, detail=f"QueryPlanner timed out")
-    except requests.RequestException as e:
+    except Exception as e:
         raise HTTPException(status_code=502, detail=f"QueryPlanner error: {e}")
 
     # web search (ws)
@@ -72,29 +70,26 @@ def find_recipes(req: FindRequest):
             timeout=60,
         )
         ws_http_response.raise_for_status()
-        urls = [i["url"] for i in ws_http_response.json().get("results", [])]
+        urls = [item["url"] for item in ws_http_response.json().get("results", [])]
         if not urls:
             raise ValueError("Search returned no URLs")
-    except requests.Timeout:
-        raise HTTPException(status_code=504, detail=f"SearchService timed out")
-    except requests.RequestException as e:
+    except Exception as e:
         raise HTTPException(status_code=502, detail=f"SearchService error: {e}")
 
     # fetch html (fh)
     html_items = []
-    for url in urls:
+    for page_url in urls:
         try:
             fh_http_response = requests.post(
-                f"{HTML_FETCHER_URL}/fetch_html", json={"urls": [url]}, timeout=60
+                f"{HTML_FETCHER_URL}/fetch_html", json={"urls": [page_url]}, timeout=60
             )
             fh_http_response.raise_for_status()
             results = fh_http_response.json().get("results", [])
             if results and "html" in results[0]:
                 html_items.append(results[0])
-        except requests.Timeout:
-            raise HTTPException(status_code=504, detail=f"HTMLFetcher timed out")
-        except requests.RequestException as e:
-            raise HTTPException(status_code=502, detail=f"HTMLFetcher error: {e}")
+        except requests.RequestException as err:
+            print(err)
+            continue
     if not html_items:
         raise HTTPException(status_code=404, detail="No pages could be fetched")
 
@@ -108,11 +103,11 @@ def find_recipes(req: FindRequest):
         try:
             er_http_response = requests.post(
                 f"{EXTRACTOR_SERVICE_URL}/extract_recipe",
-                json={"url": item["url"], "html": item["html"]},
-                timeout=10,
+                json={"url": url, "html": html},
+                timeout=60,
             )
             er_http_response.raise_for_status()
-            recipe = extracted_recipes.json()
+            recipe = er_http_response.json()
             recipe["id"] = recipe["source_url"]
             extracted_recipes.append(recipe)
         except requests.RequestException:
@@ -151,14 +146,14 @@ def find_recipes(req: FindRequest):
             summary_text = ""
         results.append(
             {
-                "title": recipe["title"],
-                "url": recipe["source_url"],
+                "title": recipe.get("title", ""),
+                "url": recipe.get("source_url", ""),
                 "summary": summary_text,
-                "ingredients": recipe["ingredients"],
-                "steps": recipe["steps"],
-                "tools": recipe["tools"],
-                "cook_time_mins": recipe["cook_time_mins"],
-                "source_url": recipe["source_url"],
+                "ingredients": recipe.get("ingredients", []),
+                "steps": recipe.get("steps", []),
+                "tools": recipe.get("tools", []),
+                "cook_time_mins": recipe.get("cook_time_mins", 0),
+                "source_url": recipe.get("source_url", ""),
             }
         )
 

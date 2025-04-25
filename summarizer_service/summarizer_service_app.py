@@ -28,64 +28,44 @@ app = FastAPI(title="Summary Generator Service")
 
 @app.post("/summarize_recipe", response_model=SummarizeResponse)
 def summarize_recipe(req: SummarizeRequest):
+    prompt = (
+        f"Write a 2–3 sentence summary of this recipe.\n"
+        f"Title: {req.title}\n"
+        f"Ingredients: {', '.join(req.ingredients)}\n"
+        f"Steps: {len(req.steps)} steps\n"
+        f"Tools: {', '.join(req.tools)}\n"
+        f"Cook time: {req.cook_time_mins} minutes\n"
+        f"Source: {req.source_url}\n\nSummary"
+    )
+
     try:
         resp = openai.responses.create(
             model="gpt-4o-mini",
             instructions="You are a recipe summarizer",
-            input=(
-                f"Write a 2–3 sentence summary of this recipe.\n"
-                f"Title: {req.title}\n"
-                f"Ingredients: {', '.join(req.ingredients)}\n"
-                f"Steps: {len(req.steps)} steps\n"
-                f"Tools: {', '.join(req.tools)}\n"
-                f"Cook time: {req.cook_time_mins} minutes\n"
-                f"Source: {req.source_url}\n\n"
-                "Summary:"
-            ),
+            input=prompt,
+            max_output_tokens=150,
         )
-    except Exception as e:
+    except openai.OpenAIError as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
-    # content = ""
-    if isinstance(resp, dict):
-        choices = resp.get("choices", [])
-        # text = choices[0]["message"]["content"]
-        # first = choices[0] if choices else {}
-        # msg = first.get("message", {}) if isinstance(first, dict) else {}
-        # content = msg.get("content", "")
-    else:
-        choices = getattr(resp, "choices", [])
-        # text = choices[0].message.content
-    if not choices:
-        text = ""
-        # choice = resp.get("choices", [{}])[0]
-        # first = choices[0] if choices else {}
-        # message = first.get("message", {})
-        # text = message.get("content", "")
-    else:
-        first = choices[0]
-
-        if isinstance(first, dict):
-            message = first.get("message", {}) or first
-        else:
-            message = getattr(first, "message", {}) or first
-
-        if isinstance(message, dict):
-            text = message.get("content", "")
-        else:
-            text = getattr(message, "content", "")
-        # choice = resp.choices[0] if resp.choices else None
-        # first = choices[0] if choices else None
-        # message = getattr(first, "message", {}) if first else {}
-        # if isinstance(message, dict):
-        #     text = message.get("content", "")
-        # else:
-        #     text = getattr(message, "content", "")
-    # message = choice.get("message", {}) if isinstance(choice, dict) else getattr(choice, "message", {})
-
-    # if isinstance(message, dict):
-    #     text = message.get("content", "")
-    # else:
-    # text = getattr(message, "content", "")
-
-    return SummarizeResponse(summary=text.strip())
+    text = getattr(resp, "output_text", None)
+    if text:
+        return SummarizeResponse(summary=text.strip())
+    print("text", text)
+    data = resp.to_dict() if hasattr(resp, "to_dict") else dict(resp)
+    print("data", data)
+    output = data.get("output", [])
+    if not output:
+        raise HTTPException(status_code=500, detail="No output from model")
+    print("output", output)
+    first = output[0]
+    print("first", first)
+    content_chunks = first.get("content", [])
+    if not content_chunks:
+        raise HTTPException(status_code=500, detail="No content from model output")
+    print("content", content_chunks)
+    summary = "".join(chunk.get("text", "") for chunk in content_chunks).strip()
+    if not summary:
+        raise HTTPException(status_code=500, detail="Empty summary text")
+    print("summart", summary)
+    return SummarizeResponse(summary=summary)
