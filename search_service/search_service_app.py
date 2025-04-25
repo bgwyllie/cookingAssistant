@@ -26,19 +26,6 @@ class SearchResponse(BaseModel):
     results: List[SearchResult]
 
 
-browser_search_tool = {
-    "type": "web_search_preview",
-    # "description": "Search the web for recipes using the browser plugin",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "query": {"type": "string"},
-            "num_results": {"type": "integer"},
-        },
-        "required": ["query"],
-    },
-}
-
 app = FastAPI(title="Search Service (GPT 4o Web Search Preview)")
 
 

@@ -3,11 +3,8 @@ import os
 from typing import List
 
 import openai
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
-load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
@@ -28,21 +25,25 @@ class ExtractResponse(BaseModel):
     source_url: str
 
 
-extract_schema = {
-    "name": "extract_full_recipe",
-    "description": "Parse recipe HTML into structured fields",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "title": {"type": "string"},
-            "ingredients": {"type": "array", "items": {"type": "string"}},
-            "steps": {"type": "array", "items": {"type": "string"}},
-            "tools": {"type": "array", "items": {"type": "string"}},
-            "cook_time_mins": {"type": "integer"},
-            "source_url": {"type": "string"},
-        },
-        "required": ["title", "ingredients", "steps", "tools", "source_url"],
+recipe_schema = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "ingredients": {"type": "array", "items": {"type": "string"}},
+        "steps": {"type": "array", "items": {"type": "string"}},
+        "tools": {"type": "array", "items": {"type": "string"}},
+        "cook_time_mins": {"type": "integer"},
+        "source_url": {"type": "string"},
     },
+    "required": [
+        "title",
+        "ingredients",
+        "steps",
+        "tools",
+        "cook_time_mins",
+        "source_url",
+    ],
+    "additionalProperties": False,
 }
 
 app = FastAPI(title="Recipe Extractor Service")
@@ -53,37 +54,30 @@ def extract_recipe(req: ExtractRequest):
     try:
         response = openai.responses.create(
             model="gpt-4o-mini",
-            instructions="You are a recipe extraction assistant",
+            instructions=(
+                "You are a recipe extraction assistant"
+                "Parse the provided HTML and return only a JSON object that matches exactly the schema"
+            ),
             input=req.html,
-            tools=[extract_schema],
-            tool_choice="extract_full_recipe",
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "extract_full_recipe",
+                    "schema": recipe_schema,
+                    "strict": True,
+                }
+            },
+            stream=False,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
-    choice = (
-        response["choices"][0] if isinstance(response, dict) else response.choices[0]
-    )
-    if isinstance(choice, dict):
-        message = choice.get("message", {})
-    else:
-        message = choice.message
-
-    if isinstance(message, dict):
-        arguments_json = message.get("arguments", "{}")
-    else:
-        arguments_json = message.arguments
+    json_string = getattr(response, "output_text", None)
+    if not json_string:
+        raise HTTPException(status_code=500, detail="Model returned no JSON")
 
     try:
-        parsed = json.loads(arguments_json)
+        parsed = json.loads(json_string)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Malformed LLM output: {e}")
-
-    return ExtractResponse(
-        title=parsed["title"],
-        ingredients=parsed["ingredients"],
-        steps=parsed["steps"],
-        tools=parsed.get("tools", []),
-        cook_time_mins=parsed.get("cook_time_mins", 0),
-        source_url=parsed["source_url"],
-    )
+        raise HTTPException(status_code=500, detail=f"Malformed JSON from model {e}")
+    return ExtractResponse(**parsed)

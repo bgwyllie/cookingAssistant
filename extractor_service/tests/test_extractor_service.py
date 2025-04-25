@@ -25,30 +25,29 @@ mock_recipe = {
     "source_url": "http:creamymushroompasta.com",
 }
 
-
-class MockChoice:
-    def __init__(self):
-        self.message = {
-            "role": "function",
-            "name": "extract_full_recipe",
-            "arguments": json.dumps(mock_recipe),
+mock_response = {
+    "output": [
+        {
+            "type": "message",
+            "content": [{"type": "output_text", "text": json.dumps(mock_recipe)}],
         }
+    ]
+}
 
 
 class MockResponse:
-    def __init__(self):
-        self.choices = [MockChoice()]
-
-
-def mock_create(*args, **kwargs):
-    return MockResponse()
+    def __init__(self, text):
+        self.output_text = text
 
 
 @pytest.fixture(autouse=True)
 def patch_openai(monkeypatch):
     import openai
 
-    monkeypatch.setattr(openai.responses, "create", mock_create)
+    json_text = json.dumps(mock_recipe)
+    monkeypatch.setattr(
+        openai.responses, "create", lambda *args, **kwargs: MockResponse(json_text)
+    )
 
 
 client = TestClient(app)
@@ -59,7 +58,7 @@ def test_extract_recipe_pass():
         "url": "http:creamymushroompasta.com",
         "html": "<html><body>mock</body></html>",
     }
-    res = client.post("extract_recipe", json=payload)
+    res = client.post("/extract_recipe", json=payload)
     assert res.status_code == 200, res.text
 
     data = res.json()
