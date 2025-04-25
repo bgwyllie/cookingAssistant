@@ -2,11 +2,8 @@ import os
 from typing import List
 
 import openai
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
-load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:

@@ -1,13 +1,9 @@
-import os
 from typing import List
 
 import requests
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
-load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 app = FastAPI(title="HTML Fetcher Service")
 

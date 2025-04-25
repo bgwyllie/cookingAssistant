@@ -83,7 +83,6 @@ def search_urls(req: SearchRequest):
                     or hit.get("snippet"),
                 )
             )
-            print(" qwerty3", results)
 
         if len(results) >= req.num_results:
             break

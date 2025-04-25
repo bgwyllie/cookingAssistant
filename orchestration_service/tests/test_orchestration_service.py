@@ -152,7 +152,6 @@ def test_find_recipes():
     requirements = {"ingredients": ["mushrooms", "cream"], "top_k": 3}
 
     response_recipe = client.post("/find_recipes", json=requirements)
-    print("QWERTY", response_recipe)
     assert response_recipe.status_code == 200
 
     recipes = response_recipe.json()
