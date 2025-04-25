@@ -51,16 +51,12 @@ app = FastAPI(title="Recipe Extractor Service")
 @app.post("/extract_recipe", response_model=ExtractResponse)
 def extract_recipe(req: ExtractRequest):
     try:
-        response = openai.ChatCompletion.create(
+        response = openai.responses.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a recipe extraction assistant."},
-                {"role": "user", "content": req.html},
-                {"role": "assistant", "content": f"Source URL: {req.url}"},
-            ],
-            functions=[extract_schema],
-            function_call={"name": "extract_full_recipe"},
-            temperature=0,
+            instructions="You are a recipe extraction assistant",
+            input=req.html,
+            tools=[extract_schema],
+            tool_choice="extract_full_recipe",
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")

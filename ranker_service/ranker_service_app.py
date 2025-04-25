@@ -50,19 +50,12 @@ app = FastAPI(title="Recipe Ranker Service")
 @app.post("/rank_recipes", response_model=RankResponse)
 def rank_recipes(req: RankRequest):
     try:
-        resp = openai.ChatCompletion.create(
+        resp = openai.responses.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "you are a recipe ranking assistant"},
-                {"role": "user", "content": f"User requirements: {req.requirements}"},
-                {
-                    "role": "assistant",
-                    "content": json.dumps([r.model_dump() for r in req.recipes]),
-                },
-            ],
-            functions=[rank_schema],
-            function_call={"name": "rank_recipes"},
-            temperature=0,
+            instructions="You are a recipe ranking assistant",
+            input=json.dumps([r.model_dump() for r in req.recipes]),
+            tools=[rank_schema],
+            tool_choice="rank_recipes",
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")

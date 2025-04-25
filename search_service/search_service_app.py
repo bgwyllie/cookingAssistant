@@ -55,15 +55,12 @@ def search_urls(req: SearchRequest):
 
     for q in req.queries:
         try:
-            res = openai.ChatCompletion.create(
+            res = openai.responses.create(
                 model="gpt-4o-web-preview",
-                messages=[
-                    {"role": "system", "content": "You are a web search assistant"},
-                    {"role": "user", "content": q},
-                ],
-                functions=[browser_search_schema],
-                function_call={"name": "browser.search"},
-                temperature=0,
+                instructions="You are a web search assistant",
+                input=q,
+                tools=[browser_search_schema],
+                tool_choice="browser.search",
             )
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Search-plugin error: {e}")

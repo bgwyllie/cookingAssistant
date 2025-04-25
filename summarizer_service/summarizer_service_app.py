@@ -31,23 +31,20 @@ app = FastAPI(title="Summary Generator Service")
 
 @app.post("/summarize_recipe", response_model=SummarizeResponse)
 def summarize_recipe(req: SummarizeRequest):
-    prompt = (
-        f"Write a 2–3 sentence appetizing summary of this recipe.\n\n"
-        f"Title: {req.title}\n"
-        f"Ingredients: {', '.join(req.ingredients)}\n"
-        f"Steps: {len(req.steps)} steps\n"
-        f"Tools: {', '.join(req.tools)}\n"
-        f"Cook time: {req.cook_time_mins} minutes\n"
-        f"Source: {req.source_url}\n\n"
-        "Summary:"
-    )
-
     try:
-        resp = openai.ChatCompletion.create(
+        resp = openai.responses.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=100,
+            instructions="You are a recipe summarizer",
+            input=(
+                f"Write a 2–3 sentence summary of this recipe.\n"
+                f"Title: {req.title}\n"
+                f"Ingredients: {', '.join(req.ingredients)}\n"
+                f"Steps: {len(req.steps)} steps\n"
+                f"Tools: {', '.join(req.tools)}\n"
+                f"Cook time: {req.cook_time_mins} minutes\n"
+                f"Source: {req.source_url}\n\n"
+                "Summary:"
+            ),
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")

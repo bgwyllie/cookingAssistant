@@ -48,7 +48,7 @@ def mock_create(*args, **kwargs):
 def patch_openai(monkeypatch):
     import openai
 
-    monkeypatch.setattr(openai.ChatCompletion, "create", mock_create)
+    monkeypatch.setattr(openai.responses, "create", mock_create)
 
 
 client = TestClient(app)
