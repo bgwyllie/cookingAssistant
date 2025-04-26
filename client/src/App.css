@@ -28,11 +28,48 @@
   color: #61dafb;
 }
 
+body {
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-family: "Poppins", sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.meal-search-bar {
+  margin: 1.2rem 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.search-bar-button {
+  width: 100%;
+}
+
+.button {
+  cursor: pointer;
+  outline: 0;
+  font-size: 1.05rem;
+}
+
+@media screen and (min-width: 600px) {
+  .meal-search-bar {
+    width: 540px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
