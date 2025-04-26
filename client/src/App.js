@@ -60,7 +60,7 @@ function App() {
         </form>
       {error && <p style={{color:"red"}}>{error}</p>}
       <div className="recipe-result">
-        <h2 className="title">Your Search Results:</h2>
+        <h2 className="title">Recipe Suggestions:</h2>
         <div className="recipe">
         {recipes.map((r, idx) => (
           <div key={idx} className="recipe-card">
@@ -72,6 +72,8 @@ function App() {
               <ul className="ingredients">{r.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>
               <summary><b><em>Steps</em></b></summary>
               <ol className="steps">{r.steps.map((st,i)=><li key={i}>{st}</li>)}</ol>
+              <summary><b><em>Tools</em></b></summary>
+              <ul className="tools">{r.tools.map((tool,i)=><li key={i}>{tool}</li>)}</ul>
             </div>
           </div>
         ))}
