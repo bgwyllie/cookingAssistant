@@ -24,7 +24,7 @@ class Recipe(BaseModel):
 class RankRequest(BaseModel):
     requirements: Dict[str, List[str]]
     recipes: List[Recipe]
-    top_k: int = 5
+    top_k: int = 3
 
 
 class RankResponse(BaseModel):

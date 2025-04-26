@@ -24,7 +24,7 @@ function App() {
       const response = await fetch('/find_recipes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ingredients, top_k: 5})
+        body: JSON.stringify({ingredients, top_k: 3})
       })
       if (!response.ok) {
         const text = await response.text()
@@ -40,48 +40,43 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header><h1>Recipe Generator</h1></header>
-      <header><h2>Enter the ingredients that you want to use to have recipe suggestions generated for you!</h2></header>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <label>
-          Ingredients (comma-separated):
+    <div className="container">
+      <div className="recipe-search">
+        <h2 className="title">Find Recipes For Your Ingredients</h2>
+        <form onSubmit={handleSubmit}>
           <div class="recipe-search-bar">
-          <input
-            type="text"
-            value={ingredientsInput}
-            onChange={(e) => setIngredientsInput(e.target.value)}
-            placeholder="e.g. mushrooms, tofu, garlic"
-            className={`flex-1 px-4 py-2 border-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-2xl ${
-              error ? 'border-red-300' : 'border-gray-300'
-            }`}
-          />
+            <input
+              type="text"
+              value={ingredientsInput}
+              onChange={(e) => setIngredientsInput(e.target.value)}
+              placeholder="Enter ingredients, e.g. tofu, garlic"
+              className="search-control"
+              disabled={loading}
+            />
           </div>
-
-        </label>
-        <button type="submit" class="search-bar-button button" disabled={loading}>
-          {loading ? 'Searching...' : 'Find Recipes'}
-        </button>
-      </form>
-
-      {error && <div className='Error'>{error}</div>}
-
-      <div className='Recipes'>
+          <button type="submit" class="search-bar-button" disabled={loading}>
+            {loading ? 'Searching...' : 'Find Recipes'}
+          </button>
+        </form>
+      {error && <p style={{color:"red"}}>{error}</p>}
+      <div className="recipe-result">
+        <h2 className="title">Your Search Results:</h2>
+        <div className="recipe">
         {recipes.map((r, idx) => (
-          <div key={idx} className="RecipeCard">
-            <h2><a href={r.url} target="_blank" rel="noopener noreferrer">{r.title}</a></h2>
-            <p><em>Cook time:</em>{r.cook_time_mins} mins</p>
+          <div key={idx} className="recipe-card">
+            <h3><a href={r.url} target="_blank" rel="noopener noreferrer" className="recipe-name">{r.title}</a></h3>
+            <p>Cook time: {r.cook_time_mins} mins</p>
             <p>{r.summary}</p>
-            <details>
-              <summary>Ingredients</summary>
-              <ul>{r.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>
-            </details>
-            <details>
-              <summary>Steps</summary>
-              <ol>{r.steps.map((st,i)=><li key={i}>{st}</li>)}</ol>
-            </details>
+            <div className="recipe-instructions">
+              <summary><b><em>Ingredients</em></b></summary>
+              <ul className="ingredients">{r.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>
+              <summary><b><em>Steps</em></b></summary>
+              <ol className="steps">{r.steps.map((st,i)=><li key={i}>{st}</li>)}</ol>
             </div>
+          </div>
         ))}
+      </div>
+    </div>
     </div>
     </div>
   );

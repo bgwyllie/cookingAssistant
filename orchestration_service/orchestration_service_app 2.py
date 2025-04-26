@@ -28,7 +28,7 @@ app = FastAPI(title="AI Cooking Assistant Orchestration Layer")
 
 class FindRequest(BaseModel):
     ingredients: List[str]
-    top_k: int = 5
+    top_k: int = 3
 
 
 class RecipeOut(BaseModel):
