@@ -9,11 +9,8 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const ingredients = ingredientsInput
-      .split(',')
-      .map((i) => i.trim())
-      .filter((i) => i)
-    if(ingredients.length === 0) {
+    const ingredients = ingredientsInput.trim()
+    if(!ingredients) {
       setError("Please enter at least one ingredient")
       return
     }
@@ -42,14 +39,14 @@ function App() {
   return (
     <div className="container">
       <div className="recipe-search">
-        <h2 className="title">Find Recipes For Your Ingredients</h2>
+        <h2 className="title">Find Recipes For Your Ingredients and Requirements</h2>
         <form onSubmit={handleSubmit}>
           <div class="recipe-search-bar">
             <input
               type="text"
               value={ingredientsInput}
               onChange={(e) => setIngredientsInput(e.target.value)}
-              placeholder="Enter ingredients, e.g. tofu, garlic"
+              placeholder="Enter recipe requirements, e.g. tofu, garlic, vegetarian"
               className="search-control"
               disabled={loading}
             />
@@ -66,7 +63,6 @@ function App() {
           <div key={idx} className="recipe-card">
             <h3><a href={r.url} target="_blank" rel="noopener noreferrer" className="recipe-name">{r.title}</a></h3>
             <p>Cook time: {r.cook_time_mins} mins</p>
-            <p>{r.summary}</p>
             <div className="recipe-instructions">
               <summary><b><em>Ingredients</em></b></summary>
               <ul className="ingredients">{r.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>

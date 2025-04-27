@@ -22,7 +22,7 @@ class Recipe(BaseModel):
 
 
 class RankRequest(BaseModel):
-    requirements: Dict[str, List[str]]
+    requirements: Dict[str, str]
     recipes: List[Recipe]
     top_k: int = 3
 
@@ -55,7 +55,7 @@ def rank_recipes(req: RankRequest):
             f"- ID: {recipe.id}, Title: {recipe.title}, Ingredients: {json.dumps(recipe.ingredients)}"
         )
     prompt_lines.append(
-        'Return a JSON object with a single key "ranked_ids" containing the recipe IDs from best to worst'
+        'Return a JSON object with a single key "ranked_ids"\ containing the recipe IDs from best to worst'
     )
     prompt = "\n".join(prompt_lines)
     try:
@@ -86,7 +86,7 @@ def rank_recipes(req: RankRequest):
 
     ranked_ids = parsed.get("ranked_ids", [])
     if not isinstance(ranked_ids, list):
-        raise HTTPException(status_code=500, detail="ranked_ids is not an array")
+        raise HTTPException(status_code=500, detail="`ranked_ids` is not an array")
 
     top_ids = ranked_ids[: req.top_k]
     id_map = {r.id: r for r in req.recipes}

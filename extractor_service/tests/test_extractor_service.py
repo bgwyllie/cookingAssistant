@@ -55,11 +55,11 @@ client = TestClient(app)
 
 def test_extract_recipe_pass():
     payload = {
-        "url": "http:creamymushroompasta.com",
-        "html": "<html><body>mock</body></html>",
+        "recipe_url": "http:creamymushroompasta.com",
+        "recipe_html": "<html><body>mock</body></html>",
     }
-    res = client.post("/extract_recipe", json=payload)
-    assert res.status_code == 200, res.text
+    recipe_response = client.post("/extract_recipe", json=payload)
+    assert recipe_response.status_code == 200, recipe_response.text
 
-    data = res.json()
+    data = recipe_response.json()
     assert data == mock_recipe

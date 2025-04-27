@@ -1,4 +1,3 @@
-import json
 import os
 from typing import List, Optional
 
@@ -26,7 +25,7 @@ class SearchResponse(BaseModel):
     results: List[SearchResult]
 
 
-app = FastAPI(title="Search Service (GPT 4o Web Search Preview)")
+app = FastAPI(title="Search Service")
 
 
 @app.post("/search_urls", response_model=SearchResponse)
@@ -37,10 +36,15 @@ def search_urls(req: SearchRequest):
     for q in req.queries:
         try:
             res = openai.responses.create(
-                model="gpt-4.1",
+                model="gpt-4.1-mini",
                 instructions="You are a web search assistant",
                 input=q,
-                tools=[{"type": "web_search"}],
+                tools=[
+                    {
+                        "type": "web_search_preview",
+                        # "search_content_size": "low",
+                    }
+                ],
                 tool_choice="required",
                 include=["web_search_call.results"],
                 temperature=0,

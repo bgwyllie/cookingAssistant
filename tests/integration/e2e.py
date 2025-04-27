@@ -14,4 +14,4 @@ def test_find_recipes_e2e():
     data = http_response.json()
     assert "results" in data and len(data["results"]) <= 2
     for recipe in data["results"]:
-        assert "title" in recipe and "summary" in recipe and "url" in recipe
+        assert "title" in recipe and "url" in recipe

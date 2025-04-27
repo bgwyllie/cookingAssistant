@@ -3130,7 +3130,7 @@ e);window.debug.log("cls",parseFloat(parseFloat(h).toFixed(4)))})}window.RProfil
 
 # Mock payload for Ranker Service
 mock_ranker_payload = {
-    "requirements": {"ingredients": ["mushroom", "cream"]},
+    "requirements": {"ingredients": "mushroom cream"},
     "recipes": [
         {
             "id": "r1",
@@ -3194,16 +3194,16 @@ def main():
         #         "html": mock_recipe_html
         #     },
         # },
-        {
-            "name": "Orchestrator E2E",
-            "url": "http://localhost:8000/find_recipes",
-            "payload": {"ingredients": ["chicken", "garlic", "lemon"]},
-        },
         # {
-        #     "name": "Ranker Service",
-        #     "url": "http://localhost:8005/rank_recipes",
-        #     "payload": mock_ranker_payload,
+        #     "name": "Orchestrator E2E",
+        #     "url": "http://localhost:8000/find_recipes",
+        #     "payload": {"ingredients": ["chicken", "garlic", "lemon"]},
         # },
+        {
+            "name": "Ranker Service",
+            "url": "http://localhost:8005/rank_recipes",
+            "payload": mock_ranker_payload,
+        },
     ]
 
     for t in tests:

@@ -79,10 +79,10 @@ def extract_recipe(req: ExtractRequest):
         raise HTTPException(status_code=500, detail="Model returned no JSON payload")
 
     try:
-        parsed = json.loads(json_string)
+        parsed_string = json.loads(json_string)
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Malformed JSON from model: {e}\n\nPayload was: \n{json_string}",
         )
-    return ExtractResponse(**parsed)
+    return ExtractResponse(**parsed_string)

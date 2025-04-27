@@ -9,7 +9,6 @@ os.environ["SEARCH_URL"] = "http://mocksearchurl"
 os.environ["HTML_URL"] = "http://mockhtmlurl"
 os.environ["EXTRACT_URL"] = "http://mockextracturl"
 os.environ["RANK_URL"] = "http://mockrankurl"
-os.environ["SUMMARY_URL"] = "http://mocksummaryurl"
 
 from orchestration_service_app import app
 
@@ -135,17 +134,5 @@ def test_find_recipes():
     recipes = response_recipe.json()
     assert len(recipes["results"]) == 3
     assert recipes["results"][0]["title"] == "Cream of mushroom soup"
-    assert (
-        recipes["results"][0]["summary"]
-        == "This mushroom soup recipe is creamy, comforting, and bursting with savory mushroom flavor."
-    )
     assert recipes["results"][1]["title"] == "Creamy mushroom pasta"
-    assert (
-        recipes["results"][1]["summary"]
-        == "This One Pot Creamy Mushroom Pasta is a super-rich, umami-filled delight that is, as always, easily prepared in one pot."
-    )
     assert recipes["results"][2]["title"] == "Mushroom risotto"
-    assert (
-        recipes["results"][2]["summary"]
-        == "Creamy, comforting, and packed with rich umami flavors, this mushroom risotto recipe is the perfect comfort food for any occasion"
-    )

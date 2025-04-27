@@ -6,12 +6,12 @@ from html_fetcher_app import app
 
 mock_HTML = """
 <html>
-<head><title>Test</title><style>body{}</style></head>
-<body>
-<h1>Header</h1>
-<script>alert("x")</script>
-<p>Content</p>
-</body>
+    <head><title>Test</title><style>body{}</style></head>
+    <body>
+        <h1>Header</h1>
+        <script>alert("x")</script>
+        <p>Content</p>
+    </body>
 </html>
 """
 

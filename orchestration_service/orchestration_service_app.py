@@ -25,14 +25,13 @@ app = FastAPI(title="AI Cooking Assistant Orchestration Layer")
 
 
 class FindRequest(BaseModel):
-    ingredients: List[str]
+    ingredients: str
     top_k: int = 3
 
 
 class RecipeOut(BaseModel):
     title: str
     url: str
-    summary: str
     ingredients: List[str]
     steps: List[str]
     tools: List[str]
@@ -51,7 +50,7 @@ def find_recipes(req: FindRequest):
         qp_http_response = requests.post(
             f"{QUERY_PLANNER_URL}/generate_queries",
             json={"ingredients": req.ingredients},
-            timeout=60,
+            timeout=90,
         )
         qp_http_response.raise_for_status()
         queries = qp_http_response.json().get("queries", [])
