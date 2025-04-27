@@ -21,14 +21,8 @@ pre-commit install
 ```
 
 How to run all the services locally
+cd infra
 docker-compose up --build
 
 How to run the integration tests
 pytest tests/integration
-
-## React Web App
-
-The web app is a single page web app created using React.
-To run the app:
-cd client
-npm start
