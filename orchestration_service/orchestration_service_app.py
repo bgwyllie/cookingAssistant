@@ -13,9 +13,6 @@ EXTRACTOR_SERVICE_URL = os.getenv(
     "EXTRACTOR_SERVICE_URL", "http://extractor_service:8004"
 )
 RANKER_SERVICE_URL = os.getenv("RANKER_SERVICE_URL", "http://ranker_service:8005")
-SUMMARIZER_SERVICE_URL = os.getenv(
-    "SUMMARIZER_SERVICE_URL", "http://summarizer_service:8006"
-)
 
 app = FastAPI(title="AI Cooking Assistant Orchestration layer")
 
@@ -113,29 +110,19 @@ def find_recipes(req: FindRequest):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"RankService error: {e}")
 
-    # summary service
-    results = []
+    # full response
+    output_recipe = []
     for recipe in top_recipes:
-        try:
-            http_response = requests.post(
-                f"{SUMMARIZER_SERVICE_URL}/summarize_recipe",
-                json=recipe,
-                timeout=(3, 60),
-            )
-            http_response.raise_for_status()
-            summary = http_response.json().get("summary", "")
-        except:
-            summary = ""
-        full_recipe = {
-            "title": recipe["title"],
-            "url": recipe["source_url"],
-            "summary": summary,
-            "ingredients": recipe["ingredients"],
-            "steps": recipe["steps"],
-            "tools": recipe["tools"],
-            "cook_time_mins": recipe["cook_time_mins"],
-            "source_url": recipe["source_url"],
-        }
-        results.append(full_recipe)
+        output_recipe.append(
+            {
+                "title": recipe["title"],
+                "url": recipe["source_url"],
+                "ingredients": recipe["ingredients"],
+                "steps": recipe["steps"],
+                "tools": recipe["tools"],
+                "cook_time_mins": recipe["cook_time_mins"],
+                "source_url": recipe["source_url"],
+            }
+        )
 
-    return FindResponse(results=results)
+    return FindResponse(results=output_recipe)

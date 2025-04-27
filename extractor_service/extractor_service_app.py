@@ -53,7 +53,7 @@ app = FastAPI(title="Recipe Extractor Service")
 def extract_recipe(req: ExtractRequest):
     try:
         response = openai.responses.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-mini",
             instructions=(
                 "You are a recipe extraction assistant"
                 "Parse the provided HTML and return only a JSON object that matches exactly the schema"

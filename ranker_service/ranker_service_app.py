@@ -48,7 +48,7 @@ app = FastAPI(title="Recipe Ranker Service")
 def rank_recipes(req: RankRequest):
     try:
         resp = openai.responses.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-mini",
             instructions="You are a recipe ranking assistant",
             input=json.dumps([r.model_dump() for r in req.recipes]),
             tools=[rank_schema],

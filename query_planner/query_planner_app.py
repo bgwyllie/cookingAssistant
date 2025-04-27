@@ -44,7 +44,7 @@ app = FastAPI(title="Query Planner")
 def generate_queries(req: QueryRequest):
     try:
         response = openai.responses.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-mini",
             instructions="You are a recipe search query generator",
             input=f"I have these ingredients {req.ingredients}. Generate 3-5 concise web search queries that would find recipes matching these constraints, each on its own line",
         )
