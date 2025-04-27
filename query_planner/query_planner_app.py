@@ -22,24 +22,6 @@ class QueryResponse(BaseModel):
 app = FastAPI(title="Query Planner Service")
 
 
-def _unwrap_content(response) -> str:
-    choices = (
-        response.get("choices", []) if isinstance(response, dict) else response.choices
-    )
-    if not choices:
-        return ""
-    first_choice = choices[0]
-    message = (
-        first_choice.get("message", {})
-        if isinstance(first_choice, dict)
-        else first_choice.message
-    )
-    return message.get("content", "") if isinstance(message, dict) else message.content
-
-
-app = FastAPI(title="Query Planner")
-
-
 @app.post("/generate_queries", response_model=QueryResponse)
 def generate_queries(req: QueryRequest):
     try:

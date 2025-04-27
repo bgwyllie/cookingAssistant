@@ -32,13 +32,11 @@ class RankResponse(BaseModel):
 
 
 rank_schema = {
-    "name": "rank_recipes",
+    "type": "object",
     "description": "given user requirements and found recipes, return the recipe urls ranked best to worst",
-    "parameters": {
-        "type": "object",
-        "properties": {"ranked_ids": {"type": "array", "items": {"type": "string"}}},
-        "required": ["ranked_ids"],
-    },
+    "properties": {"ranked_ids": {"type": "array", "items": {"type": "string"}}},
+    "required": ["ranked_ids"],
+    "additionalProperties": False,
 }
 
 app = FastAPI(title="Recipe Ranker Service")
@@ -46,34 +44,52 @@ app = FastAPI(title="Recipe Ranker Service")
 
 @app.post("/rank_recipes", response_model=RankResponse)
 def rank_recipes(req: RankRequest):
+    prompt_lines = [
+        "You are a recipe ranking assistant.",
+        f"Requirements: {json.dumps(req.requirements)}",
+        "Recipes:",
+    ]
+
+    for recipe in req.recipes:
+        prompt_lines.append(
+            f"- ID: {recipe.id}, Title: {recipe.title}, Ingredients: {json.dumps(recipe.ingredients)}"
+        )
+    prompt_lines.append(
+        'Return a JSON object with a single key "ranked_ids" containing the recipe IDs from best to worst'
+    )
+    prompt = "\n".join(prompt_lines)
     try:
         resp = openai.responses.create(
             model="gpt-4.1-mini",
-            instructions="You are a recipe ranking assistant",
-            input=json.dumps([r.model_dump() for r in req.recipes]),
-            tools=[rank_schema],
-            tool_choice="rank_recipes",
+            input=prompt,
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "ranking",
+                    "schema": rank_schema,
+                    "strict": True,
+                }
+            },
+            stream=False,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
-    choice = resp["choices"][0] if isinstance(resp, dict) else resp.choices[0]
-    message = choice.get("message", {}) if isinstance(choice, dict) else choice.message
-    arguments = (
-        message.get("arguments", "{}")
-        if isinstance(message, dict)
-        else message.arguments
-    )
+    json_text = getattr(resp, "output_text", None)
+    if not json_text:
+        raise HTTPException(status_code=502, detail="Model did not return output_text")
 
     try:
-        out = json.loads(arguments)
-    except json.JSONDecodeError as e:
-        raise HTTPException(status_code=500, detail=f"Malformed LLM output: {e}")
+        parsed = json.loads(json_text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Malformed JSON output: {e}")
 
-    ranked_ids = out.get("ranked_ids", [])
+    ranked_ids = parsed.get("ranked_ids", [])
+    if not isinstance(ranked_ids, list):
+        raise HTTPException(status_code=500, detail="ranked_ids is not an array")
+
     top_ids = ranked_ids[: req.top_k]
-
-    reorder_by_id = {r.id: r for r in req.recipes}
-    top_recipes = [reorder_by_id[i] for i in top_ids if i in reorder_by_id]
+    id_map = {r.id: r for r in req.recipes}
+    top_recipes = [id_map[i] for i in top_ids if i in id_map]
 
     return RankResponse(recipes=top_recipes)
