@@ -24,7 +24,7 @@ class Recipe(BaseModel):
 class RankRequest(BaseModel):
     requirements: Dict[str, List[str]]
     recipes: List[Recipe]
-    top_k: int = 5
+    top_k: int = 3
 
 
 class RankResponse(BaseModel):
@@ -60,7 +60,7 @@ def rank_recipes(req: RankRequest):
     prompt = "\n".join(prompt_lines)
     try:
         resp = openai.responses.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1-mini",
             input=prompt,
             text={
                 "format": {

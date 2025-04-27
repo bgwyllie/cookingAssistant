@@ -10,7 +10,6 @@ SEARCH_SERVICE_URL = os.getenv("SEARCH_SERVICE_URL")
 HTML_FETCHER_URL = os.getenv("HTML_FETCHER_URL")
 EXTRACTOR_SERVICE_URL = os.getenv("EXTRACTOR_SERVICE_URL")
 RANKER_SERVICE_URL = os.getenv("RANKER_SERVICE_URL")
-SUMMARIZER_SERVICE_URL = os.getenv("SUMMARIZER_SERVICE_URL")
 
 for name, url in [
     ("QUERY_PLANNER_URL", QUERY_PLANNER_URL),
@@ -18,7 +17,6 @@ for name, url in [
     ("HTML_FETCHER_URL", HTML_FETCHER_URL),
     ("EXTRACTOR_SERVICE_URL", EXTRACTOR_SERVICE_URL),
     ("RANKER_SERVICE_URL", RANKER_SERVICE_URL),
-    ("SUMMARIZER_SERVICE_URL", SUMMARIZER_SERVICE_URL),
 ]:
     if not url:
         raise RuntimeError(f"Missing required environment variable {name}")
@@ -28,7 +26,7 @@ app = FastAPI(title="AI Cooking Assistant Orchestration Layer")
 
 class FindRequest(BaseModel):
     ingredients: List[str]
-    top_k: int = 5
+    top_k: int = 3
 
 
 class RecipeOut(BaseModel):
@@ -132,29 +130,19 @@ def find_recipes(req: FindRequest):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"RankService error: {e}")
 
-    # summary service (ss)
-    results = []
+    # full response
+    output_recipe = []
     for recipe in top_recipes:
-        summary_text = ""
-        try:
-            ss_http_response = requests.post(
-                f"{SUMMARIZER_SERVICE_URL}/summarize_recipe", json=recipe, timeout=60
-            )
-            ss_http_response.raise_for_status()
-            summary_text = ss_http_response.json().get("summary", "")
-        except requests.RequestException:
-            summary_text = ""
-        results.append(
+        output_recipe.append(
             {
-                "title": recipe.get("title", ""),
-                "url": recipe.get("source_url", ""),
-                "summary": summary_text,
-                "ingredients": recipe.get("ingredients", []),
-                "steps": recipe.get("steps", []),
-                "tools": recipe.get("tools", []),
-                "cook_time_mins": recipe.get("cook_time_mins", 0),
-                "source_url": recipe.get("source_url", ""),
+                "title": recipe["title"],
+                "url": recipe["source_url"],
+                "ingredients": recipe["ingredients"],
+                "steps": recipe["steps"],
+                "tools": recipe["tools"],
+                "cook_time_mins": recipe["cook_time_mins"],
+                "source_url": recipe["source_url"],
             }
         )
 
-    return FindResponse(results=results)
+    return FindResponse(results=output_recipe)

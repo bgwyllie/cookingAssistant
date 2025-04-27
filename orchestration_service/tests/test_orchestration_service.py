@@ -119,28 +119,6 @@ def patch_request(monkeypatch):
     mock_response_objects.append(MockResponse(recipe3))
     # rank recipes
     mock_response_objects.append(MockResponse({"recipes": [recipe3, recipe1, recipe2]}))
-    # summarize recipe
-    mock_response_objects.append(
-        MockResponse(
-            {
-                "summary": "This mushroom soup recipe is creamy, comforting, and bursting with savory mushroom flavor."
-            }
-        )
-    )
-    mock_response_objects.append(
-        MockResponse(
-            {
-                "summary": "This One Pot Creamy Mushroom Pasta is a super-rich, umami-filled delight that is, as always, easily prepared in one pot."
-            }
-        )
-    )
-    mock_response_objects.append(
-        MockResponse(
-            {
-                "summary": "Creamy, comforting, and packed with rich umami flavors, this mushroom risotto recipe is the perfect comfort food for any occasion"
-            }
-        )
-    )
 
     def fake_post(url, json, timeout):
         return mock_response_objects.pop(0)
