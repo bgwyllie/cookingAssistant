@@ -24,6 +24,11 @@ services:
     env_file: .env
     ports: ["8005:8005"]
 
+  summarizer_service:
+    build: ./summarizer_service
+    env_file: .env
+    ports: ["8006:8006"]
+
   orchestration_service:
     build: ./orchestration_service
     env_file: .env
@@ -34,3 +39,4 @@ services:
       - html_fetcher
       - extractor_service
       - ranker_service
+      - summarizer_service
