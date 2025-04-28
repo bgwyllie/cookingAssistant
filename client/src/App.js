@@ -11,7 +11,7 @@ function App() {
     e.preventDefault()
     const ingredients = ingredientsInput.trim()
     if(!ingredients) {
-      setError("Please enter at least one ingredient")
+      setError("Please enter at least one recipe requirement/ingredient")
       return
     }
 
@@ -41,17 +41,17 @@ function App() {
       <div className="recipe-search">
         <h2 className="title">Find Recipes For Your Ingredients and Requirements</h2>
         <form onSubmit={handleSubmit}>
-          <div class="recipe-search-bar">
+          <div className="recipe-search-bar">
             <input
               type="text"
               value={ingredientsInput}
               onChange={(e) => setIngredientsInput(e.target.value)}
-              placeholder="Enter recipe requirements, e.g. tofu, garlic, vegetarian"
+              placeholder="Enter recipe requirements, e.g. tofu, broccoli, vegetarian"
               className="search-control"
               disabled={loading}
             />
           </div>
-          <button type="submit" class="search-bar-button" disabled={loading}>
+          <button type="submit" className="search-bar-button" disabled={loading}>
             {loading ? 'Searching...' : 'Find Recipes'}
           </button>
         </form>
@@ -59,17 +59,17 @@ function App() {
       <div className="recipe-result">
         <h2 className="title">Recipe Suggestions:</h2>
         <div className="recipe">
-        {recipes.map((r, idx) => (
+        {recipes.map((recipe, idx) => (
           <div key={idx} className="recipe-card">
-            <h3><a href={r.url} target="_blank" rel="noopener noreferrer" className="recipe-name">{r.title}</a></h3>
-            <p>Cook time: {r.cook_time_mins} mins</p>
+            <h3><a href={recipe.url} target="_blank" rel="noopener noreferrer" className="recipe-name">{recipe.title}</a></h3>
+            <p>Cook time: {recipe.cook_time_mins} mins</p>
             <div className="recipe-instructions">
               <summary><b><em>Ingredients</em></b></summary>
-              <ul className="ingredients">{r.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>
+              <ul className="ingredients">{recipe.ingredients.map((ing,i)=><li key={i}>{ing}</li>)}</ul>
               <summary><b><em>Steps</em></b></summary>
-              <ol className="steps">{r.steps.map((st,i)=><li key={i}>{st}</li>)}</ol>
+              <ol className="steps">{recipe.steps.map((st,i)=><li key={i}>{st}</li>)}</ol>
               <summary><b><em>Tools</em></b></summary>
-              <ul className="tools">{r.tools.map((tool,i)=><li key={i}>{tool}</li>)}</ul>
+              <ul className="tools">{recipe.tools.map((tool,i)=><li key={i}>{tool}</li>)}</ul>
             </div>
           </div>
         ))}
