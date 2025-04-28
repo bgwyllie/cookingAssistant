@@ -59,7 +59,7 @@ def rank_recipes(req: RankRequest):
     )
     prompt = "\n".join(prompt_lines)
     try:
-        resp = openai.responses.create(
+        response = openai.responses.create(
             model="gpt-4.1-mini",
             input=prompt,
             text={
@@ -75,7 +75,7 @@ def rank_recipes(req: RankRequest):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
-    json_text = getattr(resp, "output_text", None)
+    json_text = getattr(response, "output_text", None)
     if not json_text:
         raise HTTPException(status_code=502, detail="Model did not return output_text")
 

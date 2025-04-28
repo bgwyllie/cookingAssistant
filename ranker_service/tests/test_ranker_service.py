@@ -24,7 +24,7 @@ mock_recipes = [
         ],
         tools=["pot", "pan", "zester"],
         cook_time_mins=35,
-        source_url="http:creamymushroompasta.com",
+        source_url="http://creamymushroompasta.com",
     ),
     Recipe(
         id="recipe2",
@@ -48,7 +48,7 @@ mock_recipes = [
         ],
         tools=["pot", "pan", "laddle"],
         cook_time_mins=45,
-        source_url="http:mushroomrisotto.com",
+        source_url="http://mushroomrisotto.com",
     ),
     Recipe(
         id="recipe3",
@@ -72,36 +72,25 @@ mock_recipes = [
         ],
         tools=["large saucepan", "food processor", "whisk"],
         cook_time_mins=50,
-        source_url="http:creamofmushroomsoup.com",
+        source_url="http://creamofmushroomsoup.com",
     ),
 ]
 
 LLM_Rank = {"ranked_ids": ["recipe3", "recipe1", "recipe2"]}
 
 
-class MockChoice:
-    def __init__(self):
-        self.message = {
-            "role": "function",
-            "name": "rank_recipes",
-            "arguments": json.dumps(LLM_Rank),
-        }
-
-
 class MockResponse:
     def __init__(self):
-        self.choices = [MockChoice()]
-
-
-def mock_create(*args, **kwargs):
-    return MockResponse()
+        self.output_text = json.dumps(LLM_Rank)
 
 
 @pytest.fixture(autouse=True)
 def patch_openai(monkeypatch):
     import openai
 
-    monkeypatch.setattr(openai.responses, "create", mock_create)
+    monkeypatch.setattr(
+        openai.responses, "create", lambda *args, **kwargs: MockResponse()
+    )
 
 
 client = TestClient(app)
@@ -109,7 +98,7 @@ client = TestClient(app)
 
 def test_rank_recipes_default_top_k():
     payload = {
-        "requirements": {"ingredients": ["mushrooms", "cream"]},
+        "requirements": {"ingredients": "mushrooms cream"},
         "recipes": [r.model_dump() for r in mock_recipes],
     }
     res = client.post("/rank_recipes", json=payload)
@@ -121,7 +110,7 @@ def test_rank_recipes_default_top_k():
 
 def test_rank_recipes_custom_top_k():
     payload = {
-        "requirements": {"ingredients": ["mushrooms", "cream"]},
+        "requirements": {"ingredients": "mushrooms cream"},
         "recipes": [r.model_dump() for r in mock_recipes],
         "top_k": 2,
     }

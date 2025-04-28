@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List
 
 import openai
 from fastapi import FastAPI, HTTPException
@@ -12,13 +12,12 @@ if not openai.api_key:
 
 class SearchRequest(BaseModel):
     queries: List[str]
-    num_results: Optional[int] = 10
+    num_results: int = 10
 
 
 class SearchResult(BaseModel):
     title: str
     url: str
-    recipe_description: Optional[str] = None
 
 
 class SearchResponse(BaseModel):
@@ -30,19 +29,18 @@ app = FastAPI(title="Search Service")
 
 @app.post("/search_urls", response_model=SearchResponse)
 def search_urls(req: SearchRequest):
-    seen = set()
+    seen_recipes = set()
     results: List[SearchResult] = []
 
     for q in req.queries:
         try:
-            res = openai.responses.create(
+            response = openai.responses.create(
                 model="gpt-4.1-mini",
                 instructions="You are a web search assistant",
                 input=q,
                 tools=[
                     {
                         "type": "web_search_preview",
-                        # "search_content_size": "low",
                     }
                 ],
                 tool_choice="required",
@@ -52,7 +50,7 @@ def search_urls(req: SearchRequest):
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Search-plugin error: {e}")
 
-        data = res.to_dict() if hasattr(res, "to_dict") else dict(res)
+        data = response.to_dict() if hasattr(response, "to_dict") else dict(response)
         output = data.get("output", [])
         for item in output:
             if item.get("type") == "web_search_call" and "results" in item:
@@ -65,26 +63,20 @@ def search_urls(req: SearchRequest):
                     for chunk in item.get("content", []):
                         for annotation in chunk.get("annotations", []):
                             hits.append(
-                                {
-                                    "title": annotation["title"],
-                                    "url": annotation["url"],
-                                    "recipe_description": None,
-                                }
+                                {"title": annotation["title"], "url": annotation["url"]}
                             )
                     if hits:
                         break
 
         for hit in hits:
             url = hit.get("url")
-            if not url or url in seen:
+            if not url or url in seen_recipes:
                 continue
-            seen.add(url)
+            seen_recipes.add(url)
             results.append(
                 SearchResult(
                     title=hit.get("title", ""),
                     url=url,
-                    recipe_description=hit.get("recipe_description")
-                    or hit.get("snippet"),
                 )
             )
 

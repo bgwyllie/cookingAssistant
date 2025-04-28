@@ -1,4 +1,3 @@
-import json
 import os
 
 import pytest
@@ -16,17 +15,14 @@ mock_choice = {
                 {
                     "title": "title 1",
                     "url": "http://recipe1.com",
-                    "recipe_description": "recipe 1 description",
                 },
                 {
                     "title": "title 2",
                     "url": "http://recipe2.com",
-                    "recipe_description": "recipe 2 description",
                 },
                 {
                     "title": "title 3",
                     "url": "http://recipe3.com",
-                    "recipe_description": "recipe 3 description",
                 },
             ],
         }
@@ -53,11 +49,9 @@ def test_search_urls_gpt_preview():
         {
             "title": "title 1",
             "url": "http://recipe1.com",
-            "recipe_description": "recipe 1 description",
         },
         {
             "title": "title 2",
             "url": "http://recipe2.com",
-            "recipe_description": "recipe 2 description",
         },
     ]

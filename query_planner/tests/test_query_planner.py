@@ -35,7 +35,7 @@ client = TestClient(app)
 
 
 def test_generate_queries():
-    payload = {"ingredients": ["mushroom", "cream"]}
+    payload = {"ingredients": "mushroom cream"}
     res = client.post("/generate_queries", json=payload)
     assert res.status_code == 200, res.text
 

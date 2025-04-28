@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
-    raise RuntimeError("missing open ai key")
+    raise RuntimeError("Missing OpenAI key")
 
 
 class ExtractRequest(BaseModel):
