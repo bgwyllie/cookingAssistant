@@ -7,10 +7,11 @@ The assistant will provide them with a recipe using these input ingredients, inc
 
 I initially developed the app so that the user would have to input a comma separated list of ingredients but that wasn't the best user experience. As well, I have dietary restrictions so I wanted that to be included in the search. So instead of having to input a comma separated list, the user can input whatever they want related to their recipe requirements.
 E.g.
-"high-protein vegetarian spinach pasta", "gluten-free blueberry muffin",
+"high-protein vegetarian spinach artichoke", 
+"blueberry gluten-free baking",
 "mushrooms, pasta, lemon, parmesan"
 
-Latency is currently still an issue, there is a bottleneck but so far I have not been able to locate it. As well, this is a beta version so there are still kinks to be worked out.
+I used OpenAI's GPT-4.1-mini model for the development due to its high performance and resonably low latency. It could be changed to GPT-4.1-nano or GPT-o4-mini depending on the perfomance requirements. As it stands, this works well for the beta app. However, latency is currently still an issue, there is a bottleneck but so far I have not been able to locate it. Each microservice runs quickly so I would have to do further testing to locate the issue. As well, this is a beta version so there are still kinks to be worked out.
 
 I currently have it set so that only the top 3 recipes are shown, as to not overwhelm the user but this could easily be scaled to show the user more recipe options.
 
